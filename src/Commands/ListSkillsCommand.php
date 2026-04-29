@@ -39,12 +39,12 @@ final class ListSkillsCommand extends Command
         $skillFiles = \glob($this->skillsDirectory . DIRECTORY_SEPARATOR . '*.md') ?: [];
         $skillDirectories = \array_filter(
             \glob($this->skillsDirectory . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [],
-            fn(string $d) => \file_exists($d . DIRECTORY_SEPARATOR . 'SKILL.md'),
+            fn (string $d) => \file_exists($d . DIRECTORY_SEPARATOR . 'SKILL.md'),
         );
 
         $skills = \array_merge(
-            \array_map(fn(string $f) => \basename($f, '.md'), $skillFiles),
-            \array_map(fn(string $d) => \basename($d), $skillDirectories),
+            \array_map(fn (string $f) => \basename($f, '.md'), $skillFiles),
+            \array_map(fn (string $d) => \basename($d), $skillDirectories),
         );
         \sort($skills);
 
