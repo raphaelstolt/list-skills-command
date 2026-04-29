@@ -37,9 +37,18 @@ final class ListSkillsCommand extends Command
         }
 
         $skillFiles = \glob($this->skillsDirectory . DIRECTORY_SEPARATOR . '*.md') ?: [];
-        \sort($skillFiles);
+        $skillDirectories = \array_filter(
+            \glob($this->skillsDirectory . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [],
+            fn(string $d) => \file_exists($d . DIRECTORY_SEPARATOR . 'SKILL.md'),
+        );
 
-        if ($skillFiles === []) {
+        $skills = \array_merge(
+            \array_map(fn(string $f) => \basename($f, '.md'), $skillFiles),
+            \array_map(fn(string $d) => \basename($d), $skillDirectories),
+        );
+        \sort($skills);
+
+        if ($skills === []) {
             $output->writeln('No AI skills found.');
 
             return Command::SUCCESS;
@@ -47,8 +56,8 @@ final class ListSkillsCommand extends Command
 
         $output->writeln('Available AI skills:');
 
-        foreach ($skillFiles as $skillFile) {
-            $output->writeln(\sprintf('- %s', \basename($skillFile, '.md')));
+        foreach ($skills as $skill) {
+            $output->writeln(\sprintf('- %s', $skill));
         }
 
         return Command::SUCCESS;

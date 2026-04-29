@@ -7,8 +7,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [v1.0.1] - 2026-04-30
+
+### Fixed
+- Follow Boost's custom skills convention.
+
 ## v1.0.0 - 2026-04-30
 
 - Initial release.
 
-[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.1...HEAD
+
+[v1.0.1]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.0...v1.0.1

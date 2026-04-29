@@ -65,6 +65,34 @@ final class ListSkillsCommandTest extends TestCase
 
     #[Test]
     #[RunInSeparateProcess]
+    public function listsCustomBoostSkillsFromDirectories(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \mkdir($skillsDirectory . '/creating-gitattributes-file');
+        \touch($skillsDirectory . '/creating-gitattributes-file/SKILL.md');
+
+        \mkdir($skillsDirectory . '/creating-editorconfig-file');
+        \touch($skillsDirectory . '/creating-editorconfig-file/SKILL.md');
+
+        \mkdir($skillsDirectory . '/not-a-skill-no-skill-md');
+
+        $listSkillsCommand = new ListSkillsCommand($skillsDirectory);
+
+        TestCommand::for($listSkillsCommand)
+            ->execute()
+            ->assertOutputContains('Available AI skills:')
+            ->assertOutputContains('- creating-editorconfig-file')
+            ->assertOutputContains('- creating-gitattributes-file')
+            ->assertOutputNotContains('- not-a-skill-no-skill-md')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
     public function returnsSuccessfullyWhenNoSkillsAreFound(): void
     {
         $this->setUpTemporaryDirectory();
