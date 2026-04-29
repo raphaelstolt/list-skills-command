@@ -12,7 +12,7 @@ the command line.
 ## Installation and usage
 
 ```bash
-composer require --dev stolt/list-skills-command
+composer require stolt/list-skills-command
 ```
 
 ### Adding the command to your `symfony/console` based application
