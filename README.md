@@ -15,7 +15,7 @@ the command line.
 composer require --dev stolt/list-skills-command
 ```
 
-### Adding the command to your `symfony/console` application
+### Adding the command to your `symfony/console` based application
 
 ```php
 use Stolt\Console\Commands\ListSkillsCommand;
@@ -23,12 +23,15 @@ use Symfony\Component\Console\Application;
 
 $application = new Application('your-cli-application-with-boost-skills', A_VERSION_NUMBER);
 
+# Actual command integration
 $application->add(new ListSkillsCommand());
 
 $application->run();
 ```
 
 ### Listing all available skills
+
+Here for [llms-txt-php-cli](https://github.com/raphaelstolt/llms-txt-php-cli) which integrates the list skills command.
 
 ```bash
 php bin/llms-txt-cli list-skills
