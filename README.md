@@ -19,8 +19,13 @@ composer require --dev stolt/list-skills-command
 
 ```php
 use Stolt\Console\Commands\ListSkillsCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application('your-cli-application-with-boost-skills', A_VERSION_NUMBER);
 
 $application->add(new ListSkillsCommand());
+
+$application->run();
 ```
 
 ### Listing all available skills
