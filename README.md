@@ -21,10 +21,13 @@ composer require stolt/list-skills-command
 use Stolt\Console\Commands\ListSkillsCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('your-cli-application-with-boost-skills', A_VERSION_NUMBER);
+$application = new Application(
+    'your-cli-application-with-custom-boost-skills', 
+    A_VERSION_NUMBER
+);
 
 # Actual command integration
-$application->add(new ListSkillsCommand());
+$application->addCommand(new ListSkillsCommand());
 
 $application->run();
 ```
