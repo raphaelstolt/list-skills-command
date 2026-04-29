@@ -9,8 +9,7 @@
         "boost",
         "list",
         "skills",
-        "cli",
-        "dev"
+        "cli"
     ],
     "authors": [
         {
@@ -18,7 +17,7 @@
             "email": "raphael.stolt@gmail.com"
         }
     ],
-    "type": "project",
+    "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
