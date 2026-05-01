@@ -7,6 +7,7 @@ namespace Stolt\Console\Commands;
 use Stolt\Ai\Skill\Validator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class ListSkillsCommand extends Command
@@ -24,11 +25,37 @@ final class ListSkillsCommand extends Command
     {
         $this->setName('list-skills');
         $this->setDescription('List included AI skills');
+        $this->addOption(
+            'tag',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Filter skills by a single tag or a comma-separated list of tags'
+        );
+        $this->addOption(
+            'format-json',
+            null,
+            InputOption::VALUE_NONE,
+            'Output skills as JSON for AI agents'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $formatJson = $input->getOption('format-json') === true;
+
         if (\is_dir($this->skillsDirectory) === false) {
+            if ($formatJson) {
+                $output->writeln((string) \json_encode([
+                    'error' => \sprintf(
+                        'Unable to find skills directory %s.',
+                        $this->skillsDirectory
+                    ),
+                    'skills_directory' => $this->skillsDirectory,
+                ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+                return Command::FAILURE;
+            }
+
             $output->writeln(\sprintf(
                 '<error>Unable to find skills directory <info>%s</info>.</error>',
                 $this->skillsDirectory
@@ -55,6 +82,7 @@ final class ListSkillsCommand extends Command
                         'path' => $f,
                         'skill_file' => $f,
                         'slug' => $slug,
+                        'tags' => $metadata['tags'] ?? [],
                         'type' => 'file',
                         'version' => $metadata['version'] ?? null,
                     ];
@@ -73,6 +101,7 @@ final class ListSkillsCommand extends Command
                         'path' => $d,
                         'skill_file' => $skillFile,
                         'slug' => $slug,
+                        'tags' => $metadata['tags'] ?? [],
                         'type' => 'directory',
                         'version' => $metadata['version'] ?? null,
                     ];
@@ -80,10 +109,44 @@ final class ListSkillsCommand extends Command
                 $skillDirectories
             ),
         );
+
+        $tags = $this->requestedTags($input);
+
+        if ($tags !== []) {
+            $skills = \array_values(\array_filter(
+                $skills,
+                fn (array $skill): bool => \array_intersect($skill['tags'], $tags) !== []
+            ));
+        }
+
         \usort(
             $skills,
             fn (array $a, array $b) => \strnatcasecmp($a['slug'], $b['slug'])
         );
+
+        if ($formatJson) {
+            $output->writeln((string) \json_encode([
+                'skills_directory' => $this->skillsDirectory,
+                'filters' => [
+                    'tags' => $tags,
+                ],
+                'count' => \count($skills),
+                'skills' => \array_map(
+                    fn (array $skill): array => [
+                        'slug' => $skill['slug'],
+                        'name' => $skill['name'],
+                        'description' => $skill['description'],
+                        'version' => $skill['version'],
+                        'tags' => $skill['tags'],
+                        'type' => $skill['type'],
+                        'path' => $skill['path'],
+                    ],
+                    $skills
+                ),
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+            return Command::SUCCESS;
+        }
 
         if ($skills === []) {
             $output->writeln('No AI skills found.');
@@ -139,7 +202,27 @@ final class ListSkillsCommand extends Command
     }
 
     /**
-     * @return array{name?: string, description?: string, version?: string}
+     * @return list<string>
+     */
+    private function requestedTags(InputInterface $input): array
+    {
+        $tagOption = $input->getOption('tag');
+
+        if (\is_string($tagOption) === false || \trim($tagOption) === '') {
+            return [];
+        }
+
+        return \array_values(\array_filter(
+            \array_map(
+                fn (string $tag): string => \trim($tag),
+                \explode(',', $tagOption)
+            ),
+            fn (string $tag): bool => $tag !== ''
+        ));
+    }
+
+    /**
+     * @return array{name?: string, description?: string, version?: string, tags?: list<string>}
      */
     private function skillMetadata(string $skillFile): array
     {

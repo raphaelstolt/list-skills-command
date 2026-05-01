@@ -9,6 +9,10 @@ use PHPUnit\Framework\Attributes\Test;
 use Stolt\Console\Commands\ListSkillsCommand;
 use Stolt\Console\Tests\TestCase;
 use Zenstruck\Console\Test\TestCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class ListSkillsCommandTest extends TestCase
 {
@@ -342,78 +346,6 @@ MARKDOWN
 
     #[Test]
     #[RunInSeparateProcess]
-    public function validatesSkillMdFilesWhenVerboseOutputIsUsed(): void
-    {
-        $this->setUpTemporaryDirectory();
-
-        $skillsDirectory = $this->temporaryDirectory . '/skills';
-        \mkdir($skillsDirectory);
-
-        \file_put_contents(
-            $skillsDirectory . '/valid-file-skill.md',
-            <<<'MARKDOWN'
----
-name: valid-file-skill
-description: Use this skill when validating a correctly structured Markdown skill file.
----
-
-Follow the documented workflow to validate the file skill.
-MARKDOWN
-        );
-
-        \mkdir($skillsDirectory . '/invalid-directory-skill');
-        \file_put_contents(
-            $skillsDirectory . '/invalid-directory-skill/SKILL.md',
-            <<<'MARKDOWN'
-This file intentionally omits the required frontmatter.
-MARKDOWN
-        );
-
-        TestCommand::for(new ListSkillsCommand($skillsDirectory))
-            ->execute('-v')
-            ->assertOutputContains('- valid-file-skill: Use this skill when validating a correctly structured Markdown skill file. [SKILL.md validation: valid]')
-            ->assertOutputContains('- invalid-directory-skill:  [SKILL.md validation: invalid')
-            ->assertSuccessful();
-    }
-
-    #[Test]
-    #[RunInSeparateProcess]
-    public function validatesDirectorySkillMdFilesWhenVerboseOutputIsUsed(): void
-    {
-        $this->setUpTemporaryDirectory();
-
-        $skillsDirectory = $this->temporaryDirectory . '/skills';
-        \mkdir($skillsDirectory);
-
-        \mkdir($skillsDirectory . '/valid-directory-skill');
-        \file_put_contents(
-            $skillsDirectory . '/valid-directory-skill/SKILL.md',
-            <<<'MARKDOWN'
----
-name: valid-directory-skill
-description: Use this skill when validating a correctly structured directory skill.
----
-
-Follow the documented workflow to validate the directory skill.
-MARKDOWN
-        );
-
-        \file_put_contents(
-            $skillsDirectory . '/invalid-file-skill.md',
-            <<<'MARKDOWN'
-This file intentionally omits the required frontmatter.
-MARKDOWN
-        );
-
-        TestCommand::for(new ListSkillsCommand($skillsDirectory))
-            ->execute('-v')
-            ->assertOutputContains('- invalid-file-skill:  [SKILL.md validation: invalid')
-            ->assertOutputContains('- valid-directory-skill: Use this skill when validating a correctly structured directory skill. [SKILL.md validation: valid]')
-            ->assertSuccessful();
-    }
-
-    #[Test]
-    #[RunInSeparateProcess]
     public function listsSkillsAsJsonWhenFormatJsonOptionIsUsed(): void
     {
         $this->setUpTemporaryDirectory();
@@ -602,6 +534,78 @@ MARKDOWN
         );
 
         $result->assertFaulty();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function validatesSkillMdFilesWhenVerboseOutputIsUsed(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/valid-file-skill.md',
+            <<<'MARKDOWN'
+---
+name: valid-file-skill
+description: Use this skill when validating a correctly structured Markdown skill file.
+---
+
+Follow the documented workflow to validate the file skill.
+MARKDOWN
+        );
+
+        \mkdir($skillsDirectory . '/invalid-directory-skill');
+        \file_put_contents(
+            $skillsDirectory . '/invalid-directory-skill/SKILL.md',
+            <<<'MARKDOWN'
+This file intentionally omits the required frontmatter.
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('-v')
+            ->assertOutputContains('- valid-file-skill: Use this skill when validating a correctly structured Markdown skill file. [SKILL.md validation: valid]')
+            ->assertOutputContains('- invalid-directory-skill:  [SKILL.md validation: invalid')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function validatesDirectorySkillMdFilesWhenVerboseOutputIsUsed(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \mkdir($skillsDirectory . '/valid-directory-skill');
+        \file_put_contents(
+            $skillsDirectory . '/valid-directory-skill/SKILL.md',
+            <<<'MARKDOWN'
+---
+name: valid-directory-skill
+description: Use this skill when validating a correctly structured directory skill.
+---
+
+Follow the documented workflow to validate the directory skill.
+MARKDOWN
+        );
+
+        \file_put_contents(
+            $skillsDirectory . '/invalid-file-skill.md',
+            <<<'MARKDOWN'
+This file intentionally omits the required frontmatter.
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('-v')
+            ->assertOutputContains('- invalid-file-skill:  [SKILL.md validation: invalid')
+            ->assertOutputContains('- valid-directory-skill: Use this skill when validating a correctly structured directory skill. [SKILL.md validation: valid]')
+            ->assertSuccessful();
     }
 
     #[Test]

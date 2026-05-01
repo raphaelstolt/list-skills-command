@@ -65,6 +65,10 @@ Available AI skills:
 
 Use the `--tag` option to filter the available skills by a specific tag or a comma-separated list of tags.
 
+### Switching the output format
+
+Use the `--format-json` option to switch the output format to machine-readable JSON for AI agents or CI environments.
+
 ### Running tests
 
 ``` bash

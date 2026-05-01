@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 - Lightweight `SKILL.md` validation via [ronaldtebrake/agent-skills-validator](https://github.com/ronaldtebrake/agent-skills-validator). Closes [#2](https://github.com/raphaelstolt/list-skills-command/issues/2).
 - Filter skills by tag when running the list skills command with the `--tag` option. Closes [#3](https://github.com/raphaelstolt/list-skills-command/issues/3).
+- JSON output for AI agents or CI environments when running the list skills command with the `--format-json` option. Closes [#4](https://github.com/raphaelstolt/list-skills-command/issues/4).
 
 ## [v1.1.0] - 2026-05-01
 
