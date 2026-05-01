@@ -46,7 +46,7 @@ final class ListSkillsCommand extends Command
             \array_map(fn (string $f) => \basename($f, '.md'), $skillFiles),
             \array_map(fn (string $d) => \basename($d), $skillDirectories),
         );
-        \sort($skills);
+        \sort($skills, SORT_NATURAL | SORT_FLAG_CASE);
 
         if ($skills === []) {
             $output->writeln('No AI skills found.');

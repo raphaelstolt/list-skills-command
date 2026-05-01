@@ -93,6 +93,42 @@ final class ListSkillsCommandTest extends TestCase
 
     #[Test]
     #[RunInSeparateProcess]
+    public function listsSkillsSortedAlphabetically(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        foreach (['skill-10.md',
+                  'zebra-skill.md',
+                  'Alpha-skill.md',
+                  'skill-2.md',
+                  'beta-skill.md'] as $skillFile) {
+            \file_put_contents($skillsDirectory . '/' . $skillFile, '');
+        }
+
+        $result = TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute();
+
+        self::assertSame(
+            <<<'OUTPUT'
+Available AI skills:
+- Alpha-skill
+- beta-skill
+- skill-2
+- skill-10
+- zebra-skill
+
+OUTPUT,
+            $result->output()
+        );
+
+        $result->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
     public function returnsSuccessfullyWhenNoSkillsAreFound(): void
     {
         $this->setUpTemporaryDirectory();
