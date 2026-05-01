@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Stolt\Console\Commands;
 
+use Stolt\Ai\Skill\Validator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -51,7 +52,10 @@ final class ListSkillsCommand extends Command
                     return [
                         'description' => $metadata['description'] ?? '',
                         'name' => $metadata['name'] ?? $slug,
+                        'path' => $f,
+                        'skill_file' => $f,
                         'slug' => $slug,
+                        'type' => 'file',
                         'version' => $metadata['version'] ?? null,
                     ];
                 },
@@ -59,13 +63,17 @@ final class ListSkillsCommand extends Command
             ),
             \array_map(
                 function (string $d): array {
-                    $metadata = $this->skillMetadata($d . DIRECTORY_SEPARATOR . 'SKILL.md');
+                    $skillFile = $d . DIRECTORY_SEPARATOR . 'SKILL.md';
+                    $metadata = $this->skillMetadata($skillFile);
                     $slug = \basename($d);
 
                     return [
                         'description' => $metadata['description'] ?? '',
                         'name' => $metadata['name'] ?? $slug,
+                        'path' => $d,
+                        'skill_file' => $skillFile,
                         'slug' => $slug,
+                        'type' => 'directory',
                         'version' => $metadata['version'] ?? null,
                     ];
                 },
@@ -88,12 +96,14 @@ final class ListSkillsCommand extends Command
         foreach ($skills as $skill) {
             if ($output->isVerbose()) {
                 $version = $skill['version'] !== null ? \sprintf(' (%s)', $skill['version']) : '';
+                $validation = $this->skillValidationSummary($skill);
 
                 $output->writeln(\sprintf(
-                    '- %s%s: %s',
+                    '- %s%s: %s [%s]',
                     $skill['name'],
                     $version,
-                    $skill['description']
+                    $skill['description'],
+                    $validation
                 ));
 
                 continue;
@@ -103,6 +113,29 @@ final class ListSkillsCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * @param array{skill_file: string} $skill
+     */
+    private function skillValidationSummary(array $skill): string
+    {
+        $result = (new Validator())->validateFile($skill['skill_file']);
+
+        if ($result->isValid()) {
+            return 'SKILL.md validation: valid';
+        }
+
+        $errors = $result->errors();
+
+        if ($errors === []) {
+            return 'SKILL.md validation: invalid';
+        }
+
+        return \sprintf(
+            'SKILL.md validation: invalid (%s)',
+            \implode('; ', $errors)
+        );
     }
 
     /**
@@ -116,14 +149,44 @@ final class ListSkillsCommand extends Command
             return [];
         }
 
-        \preg_match('/^name:\s*(.+)$/m', $contents, $nameMatches);
-        \preg_match('/^description:\s*(.+)$/m', $contents, $descriptionMatches);
-        \preg_match('/^version:\s*(.+)$/m', $contents, $versionMatches);
+        $result = (new Validator())->parseContent($contents);
+
+        if ($result->hasErrors()) {
+            return [];
+        }
+
+        $metadata = $result->rawMetadata();
 
         return \array_filter([
-            'description' => $descriptionMatches[1] ?? null,
-            'name' => $nameMatches[1] ?? null,
-            'version' => $versionMatches[1] ?? null,
+            'description' => \is_string($metadata['description'] ?? null) ? $metadata['description'] : null,
+            'name' => \is_string($metadata['name'] ?? null) ? $metadata['name'] : null,
+            'tags' => $this->normalizeTags($metadata['tags'] ?? null),
+            'version' => \is_string($metadata['version'] ?? null) ? $metadata['version'] : null,
         ]);
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function normalizeTags(mixed $tags): ?array
+    {
+        if (\is_array($tags)) {
+            return \array_values(\array_filter(
+                $tags,
+                fn (mixed $tag): bool => \is_string($tag) && \trim($tag) !== ''
+            ));
+        }
+
+        if (\is_string($tags) === false || \trim($tags) === '') {
+            return null;
+        }
+
+        return \array_values(\array_filter(
+            \array_map(
+                fn (string $tag): string => \trim($tag, " \t\n\r\0\x0B[]'\""),
+                \explode(',', $tags)
+            ),
+            fn (string $tag): bool => $tag !== ''
+        ));
     }
 }

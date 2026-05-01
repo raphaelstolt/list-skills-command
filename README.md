@@ -48,7 +48,8 @@ Available AI skills:
 
 ### Listing more detailed skill metadata
 
-Use Symfony Console's verbose mode to include the skill `name`, optional `version`, and `description` metadata.
+Use Symfony Console's verbose mode to include the skill `name`, optional `version`, and `description` metadata. Since `v1.1.0`
+it also does some basic `validation` of the available skill files.
 
 ```bash
 php bin/llms-txt-cli list-skills --verbose|-v

@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Added
+- Lightweight `SKILL.md` validation via [ronaldtebrake/agent-skills-validator](https://github.com/ronaldtebrake/agent-skills-validator). Closes [#2](https://github.com/raphaelstolt/list-skills-command/issues/2).
+
 ## [v1.1.0] - 2026-05-01
 
 ### Added
