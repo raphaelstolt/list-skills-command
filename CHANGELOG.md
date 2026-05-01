@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [v1.1.0] - 2026-05-01
+
+### Added
+- Output skill `name`, `description`, and `version` metadata when running the list skills command with verbose output enabled. Closes [#1](https://github.com/raphaelstolt/list-skills-command/issues/1).
+
 ## [v1.0.3] - 2026-05-01
 
 ### Fixed
@@ -26,8 +31,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Initial release.
 
-[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.1.0...HEAD
 
+[v1.1.0]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.3...v1.1.0
 [v1.0.3]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.2...v1.0.3
 [v1.0.2]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.1...v1.0.2
 [v1.0.1]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.0...v1.0.1

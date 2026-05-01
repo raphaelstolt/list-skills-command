@@ -43,10 +43,39 @@ final class ListSkillsCommand extends Command
         );
 
         $skills = \array_merge(
-            \array_map(fn (string $f) => \basename($f, '.md'), $skillFiles),
-            \array_map(fn (string $d) => \basename($d), $skillDirectories),
+            \array_map(
+                function (string $f): array {
+                    $metadata = $this->skillMetadata($f);
+                    $slug = \basename($f, '.md');
+
+                    return [
+                        'description' => $metadata['description'] ?? '',
+                        'name' => $metadata['name'] ?? $slug,
+                        'slug' => $slug,
+                        'version' => $metadata['version'] ?? null,
+                    ];
+                },
+                $skillFiles
+            ),
+            \array_map(
+                function (string $d): array {
+                    $metadata = $this->skillMetadata($d . DIRECTORY_SEPARATOR . 'SKILL.md');
+                    $slug = \basename($d);
+
+                    return [
+                        'description' => $metadata['description'] ?? '',
+                        'name' => $metadata['name'] ?? $slug,
+                        'slug' => $slug,
+                        'version' => $metadata['version'] ?? null,
+                    ];
+                },
+                $skillDirectories
+            ),
         );
-        \sort($skills, SORT_NATURAL | SORT_FLAG_CASE);
+        \usort(
+            $skills,
+            fn (array $a, array $b) => \strnatcasecmp($a['slug'], $b['slug'])
+        );
 
         if ($skills === []) {
             $output->writeln('No AI skills found.');
@@ -57,9 +86,44 @@ final class ListSkillsCommand extends Command
         $output->writeln('Available AI skills:');
 
         foreach ($skills as $skill) {
-            $output->writeln(\sprintf('- %s', $skill));
+            if ($output->isVerbose()) {
+                $version = $skill['version'] !== null ? \sprintf(' (%s)', $skill['version']) : '';
+
+                $output->writeln(\sprintf(
+                    '- %s%s: %s',
+                    $skill['name'],
+                    $version,
+                    $skill['description']
+                ));
+
+                continue;
+            }
+
+            $output->writeln(\sprintf('- %s', $skill['slug']));
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * @return array{name?: string, description?: string, version?: string}
+     */
+    private function skillMetadata(string $skillFile): array
+    {
+        $contents = \file_get_contents($skillFile);
+
+        if ($contents === false) {
+            return [];
+        }
+
+        \preg_match('/^name:\s*(.+)$/m', $contents, $nameMatches);
+        \preg_match('/^description:\s*(.+)$/m', $contents, $descriptionMatches);
+        \preg_match('/^version:\s*(.+)$/m', $contents, $versionMatches);
+
+        return \array_filter([
+            'description' => $descriptionMatches[1] ?? null,
+            'name' => $nameMatches[1] ?? null,
+            'version' => $versionMatches[1] ?? null,
+        ]);
     }
 }

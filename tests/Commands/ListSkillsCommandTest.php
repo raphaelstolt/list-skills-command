@@ -129,6 +129,49 @@ OUTPUT,
 
     #[Test]
     #[RunInSeparateProcess]
+    public function listsSkillNamesAndDescriptionsWhenVerboseOutputIsUsed(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/validating-llms-txt.md',
+            <<<'MARKDOWN'
+name: Validating llms.txt files
+description: Validate llms.txt files from the command line.
+version: 1.2.0
+MARKDOWN
+        );
+
+        \mkdir($skillsDirectory . '/creating-llms-txt');
+        \file_put_contents(
+            $skillsDirectory . '/creating-llms-txt/SKILL.md',
+            <<<'MARKDOWN'
+name: Creating llms.txt files
+description: Create a new llms.txt file for a project.
+MARKDOWN
+        );
+
+        $result = TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('-v');
+
+        self::assertSame(
+            <<<'OUTPUT'
+Available AI skills:
+- Creating llms.txt files: Create a new llms.txt file for a project.
+- Validating llms.txt files (1.2.0): Validate llms.txt files from the command line.
+
+OUTPUT,
+            $result->output()
+        );
+
+        $result->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
     public function returnsSuccessfullyWhenNoSkillsAreFound(): void
     {
         $this->setUpTemporaryDirectory();

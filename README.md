@@ -46,6 +46,20 @@ Available AI skills:
 - llms-txt-validate
 ```
 
+### Listing more detailed skill metadata
+
+Use Symfony Console's verbose mode to include the skill `name`, optional `version`, and `description` metadata.
+
+```bash
+php bin/llms-txt-cli list-skills --verbose|-v
+
+Available AI skills:
+- Check links in llms.txt (1.0.0): Validate that all links in an llms.txt file are reachable.
+- Show llms.txt info: Display metadata and summary information for an llms.txt file.
+- Initialize llms.txt: Create a new llms.txt file for a project.
+- Validate llms.txt: Validate the structure and contents of an llms.txt file.
+```
+
 ### Running tests
 
 ``` bash
