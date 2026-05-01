@@ -61,6 +61,10 @@ Available AI skills:
 - Validate llms.txt: Validate the structure and contents of an llms.txt file.
 ```
 
+### Filtering skills by tag
+
+Use the `--tag` option to filter the available skills by a specific tag or a comma-separated list of tags.
+
 ### Running tests
 
 ``` bash

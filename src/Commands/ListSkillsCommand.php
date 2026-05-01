@@ -116,7 +116,7 @@ final class ListSkillsCommand extends Command
     }
 
     /**
-     * @param array{skill_file: string} $skill
+     * @param array{path: string, type: string} $skill
      */
     private function skillValidationSummary(array $skill): string
     {
