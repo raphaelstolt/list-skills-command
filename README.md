@@ -6,8 +6,7 @@
 ![PHP Version](https://img.shields.io/badge/php-8.2+-ff69b4.svg)
 [![PDS Skeleton](https://img.shields.io/badge/pds-skeleton-blue.svg?style=flat)](https://github.com/php-pds/skeleton)
 
-A simple drop-in `syfmony/console` command to list your [Boost](https://laravel.com/docs/13.x/boost) skills straight from 
-the command line.
+A simple drop-in `syfmony/console` command to list and introspect your AI skill files straight from the command line.
 
 ## Installation and usage
 

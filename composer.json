@@ -1,6 +1,6 @@
 {
     "name": "stolt/list-skills-command",
-    "description": "A symfony/console command for listing AI skills files of a project.",
+    "description": "A symfony/console command for listing and introspecting AI skills files of a project.",
     "keywords": [
         "php",
         "symfony",
@@ -8,7 +8,10 @@
         "ai",
         "boost",
         "list",
+        "introspect",
         "skills",
+        "agent-skills",
+        "SKILL.md",
         "cli"
     ],
     "authors": [
