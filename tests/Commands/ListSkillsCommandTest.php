@@ -8,11 +8,11 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use Stolt\Console\Commands\ListSkillsCommand;
 use Stolt\Console\Tests\TestCase;
-use Zenstruck\Console\Test\TestCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Zenstruck\Console\Test\TestCommand;
 
 final class ListSkillsCommandTest extends TestCase
 {
