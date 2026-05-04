@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Stolt\Console\Commands;
 
+use Ergebnis\AgentDetector\Detector;
 use Stolt\Ai\Skill\Validator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,7 +42,8 @@ final class ListSkillsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $formatJson = $input->getOption('format-json') === true;
+        $formatJson = $input->getOption('format-json') === true
+            || (new Detector())->isAgentPresent($this->environmentVariables());
 
         if (\is_dir($this->skillsDirectory) === false) {
             if ($formatJson) {
@@ -271,5 +273,22 @@ final class ListSkillsCommand extends Command
             ),
             fn (string $tag): bool => $tag !== ''
         ));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function environmentVariables(): array
+    {
+        $environmentVariables = \getenv();
+
+        if (\is_array($environmentVariables) === false) {
+            return [];
+        }
+
+        return \array_filter(
+            $environmentVariables,
+            fn (mixed $value): bool => \is_string($value)
+        );
     }
 }

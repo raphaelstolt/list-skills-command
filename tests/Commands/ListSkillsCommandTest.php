@@ -515,6 +515,92 @@ MARKDOWN
 
     #[Test]
     #[RunInSeparateProcess]
+    public function listsSkillsAsJsonWhenAnAiAgentIsDetected(): void
+    {
+        \putenv('AI_AGENT=1');
+        $_ENV['AI_AGENT'] = '1';
+        $_SERVER['AI_AGENT'] = '1';
+
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/php-skill.md',
+            <<<'MARKDOWN'
+---
+name: PHP skill
+description: Helps with PHP.
+version: 1.0.0
+tags: php, backend
+---
+MARKDOWN
+        );
+
+        $result = TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute();
+
+        self::assertSame(
+            [
+                'skills_directory' => $skillsDirectory,
+                'filters' => [
+                    'tags' => [],
+                ],
+                'count' => 1,
+                'skills' => [
+                    [
+                        'slug' => 'php-skill',
+                        'name' => 'PHP skill',
+                        'description' => 'Helps with PHP.',
+                        'version' => '1.0.0',
+                        'tags' => ['php', 'backend'],
+                        'type' => 'file',
+                        'path' => $skillsDirectory . '/php-skill.md',
+                    ],
+                ],
+            ],
+            \json_decode($result->output(), true)
+        );
+
+        $result->assertSuccessful();
+
+        \putenv('AI_AGENT');
+        unset($_ENV['AI_AGENT'], $_SERVER['AI_AGENT']);
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function returnsJsonErrorWhenSkillsDirectoryCannotBeFoundAndAnAiAgentIsDetected(): void
+    {
+        \putenv('AI_AGENT=1');
+        $_ENV['AI_AGENT'] = '1';
+        $_SERVER['AI_AGENT'] = '1';
+
+        $missingSkillsDirectory = \dirname(__DIR__, 2) . '/resources/boost/missing-skills';
+
+        $result = TestCommand::for(new ListSkillsCommand($missingSkillsDirectory))
+            ->execute();
+
+        self::assertSame(
+            [
+                'error' => \sprintf(
+                    'Unable to find skills directory %s.',
+                    $missingSkillsDirectory
+                ),
+                'skills_directory' => $missingSkillsDirectory,
+            ],
+            \json_decode($result->output(), true)
+        );
+
+        $result->assertFaulty();
+
+        \putenv('AI_AGENT');
+        unset($_ENV['AI_AGENT'], $_SERVER['AI_AGENT']);
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
     public function returnsJsonErrorWhenSkillsDirectoryCannotBeFoundAndFormatJsonOptionIsUsed(): void
     {
         $missingSkillsDirectory = \dirname(__DIR__, 2) . '/resources/boost/missing-skills';

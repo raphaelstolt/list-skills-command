@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [v1.2.1] - 2026-05-04
+
+### Added
+- Auto-enable JSON output for detected AI agentic runs via [ergebnis/agent-detector](https://github.com/ergebnis/agent-detector).
+
 ## [v1.2.0] - 2026-05-04
 
 ### Added
@@ -38,8 +43,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Initial release.
 
-[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.2.1...HEAD
 
+[v1.2.1]: https://github.com/raphaelstolt/list-skills-command/compare/v1.2.0...v1.2.1
 [v1.2.0]: https://github.com/raphaelstolt/list-skills-command/compare/v1.1.0...v1.2.0
 [v1.1.0]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.3...v1.1.0
 [v1.0.3]: https://github.com/raphaelstolt/list-skills-command/compare/v1.0.2...v1.0.3

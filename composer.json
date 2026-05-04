@@ -34,6 +34,7 @@
     },
     "require": {
         "php": ">=8.2",
+        "ergebnis/agent-detector": "^1.0",
         "stolt/skill-validator": "^0.0.1",
         "symfony/console": "^8.0||^7.3"
     },
