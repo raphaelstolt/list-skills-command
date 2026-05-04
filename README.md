@@ -1,6 +1,7 @@
 # list-skills-command
 
 ![Test Status](https://github.com/raphaelstolt/list-skills-command/workflows/test/badge.svg)
+![Lint Status](https://github.com/raphaelstolt/list-skills-command/workflows/lint/badge.svg)
 [![Version](http://img.shields.io/packagist/v/stolt/list-skills-command.svg?style=flat)](https://packagist.org/packages/stolt/list-skills-command)
 ![Downloads](https://img.shields.io/packagist/dt/stolt/list-skills-command)
 ![PHP Version](https://img.shields.io/badge/php-8.2+-ff69b4.svg)
