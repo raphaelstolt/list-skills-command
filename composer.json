@@ -36,6 +36,7 @@
         "php": ">=8.2",
         "ergebnis/agent-detector": "^1.0",
         "stolt/skill-validator": "^0.0.1",
+        "phppkg/cli-markdown": "^2.0",
         "symfony/console": "^8.0||^7.3"
     },
     "require-dev": {

@@ -69,6 +69,8 @@ Use the `--tag` option to filter the available skills by a specific tag or a com
 Use the `--format-json` option to switch the output format to machine-readable JSON for AI agents or CI environments.
 Since `v1.2.1` this is auto-enabled for AI agentic runs.
 
+Use the `--format-md` option to render the skills as a Markdown table in the terminal.
+
 ### Running tests
 
 ``` bash

@@ -696,6 +696,183 @@ MARKDOWN
 
     #[Test]
     #[RunInSeparateProcess]
+    public function rendersSkillsInMarkdownTableWhenFormatMdOptionIsUsed(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/php-skill.md',
+            <<<'MARKDOWN'
+---
+name: PHP skill
+description: Helps with PHP.
+version: 2.1.0
+tags: php
+---
+MARKDOWN
+        );
+
+        \file_put_contents(
+            $skillsDirectory . '/javascript-skill.md',
+            <<<'MARKDOWN'
+---
+name: JavaScript skill
+description: Helps with JavaScript.
+tags: javascript
+---
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--format-md')
+            ->assertOutputContains('PHP skill')
+            ->assertOutputContains('2.1.0')
+            ->assertOutputContains('Helps with PHP.')
+            ->assertOutputContains('JavaScript skill')
+            ->assertOutputContains('Helps with JavaScript.')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function rendersDirectorySkillsInMarkdownTableWhenFormatMdOptionIsUsed(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \mkdir($skillsDirectory . '/console-skill');
+        \file_put_contents(
+            $skillsDirectory . '/console-skill/SKILL.md',
+            <<<'MARKDOWN'
+---
+name: console-skill
+description: Helps with console commands.
+---
+
+Use this skill when working with console commands.
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--format-md')
+            ->assertOutputContains('console-skill')
+            ->assertOutputContains('Helps with console commands.')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function rendersFilteredSkillsInMarkdownTableWhenFormatMdAndTagOptionsAreUsed(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/php-skill.md',
+            <<<'MARKDOWN'
+---
+name: PHP skill
+description: Helps with PHP.
+tags: php
+---
+MARKDOWN
+        );
+
+        \file_put_contents(
+            $skillsDirectory . '/javascript-skill.md',
+            <<<'MARKDOWN'
+---
+name: JavaScript skill
+description: Helps with JavaScript.
+tags: javascript
+---
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--format-md --tag=php')
+            ->assertOutputContains('PHP skill')
+            ->assertOutputContains('Helps with PHP.')
+            ->assertOutputNotContains('JavaScript skill')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function formatMdTakesPrecedenceOverFormatJson(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/php-skill.md',
+            <<<'MARKDOWN'
+---
+name: PHP skill
+description: Helps with PHP.
+---
+MARKDOWN
+        );
+
+        $result = TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--format-md --format-json');
+
+        self::assertNull(\json_decode($result->output(), true));
+
+        $result
+            ->assertOutputContains('PHP skill')
+            ->assertOutputContains('Helps with PHP.')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function formatMdTakesPrecedenceOverAiAgentDetection(): void
+    {
+        \putenv('AI_AGENT=1');
+        $_ENV['AI_AGENT'] = '1';
+        $_SERVER['AI_AGENT'] = '1';
+
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/php-skill.md',
+            <<<'MARKDOWN'
+---
+name: PHP skill
+description: Helps with PHP.
+---
+MARKDOWN
+        );
+
+        $result = TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--format-md');
+
+        self::assertNull(\json_decode($result->output(), true));
+
+        $result
+            ->assertOutputContains('PHP skill')
+            ->assertOutputContains('Helps with PHP.')
+            ->assertSuccessful();
+
+        \putenv('AI_AGENT');
+        unset($_ENV['AI_AGENT'], $_SERVER['AI_AGENT']);
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
     public function returnsSuccessfullyWhenNoSkillsAreFound(): void
     {
         $this->setUpTemporaryDirectory();

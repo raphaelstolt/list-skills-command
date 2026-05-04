@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Stolt\Console\Commands;
 
 use Ergebnis\AgentDetector\Detector;
+use PhpPkg\CliMarkdown\CliMarkdown;
 use Stolt\Ai\Skill\Validator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,12 +39,20 @@ final class ListSkillsCommand extends Command
             InputOption::VALUE_NONE,
             'Output skills as JSON for AI agents'
         );
+        $this->addOption(
+            'format-md',
+            null,
+            InputOption::VALUE_NONE,
+            'Render skills in a Markdown table'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $formatJson = $input->getOption('format-json') === true
-            || (new Detector())->isAgentPresent($this->environmentVariables());
+        $formatMd = $input->getOption('format-md') === true;
+        $formatJson = $formatMd === false
+            && ($input->getOption('format-json') === true
+                || (new Detector())->isAgentPresent($this->environmentVariables()));
 
         if (\is_dir($this->skillsDirectory) === false) {
             if ($formatJson) {
@@ -152,6 +161,23 @@ final class ListSkillsCommand extends Command
 
         if ($skills === []) {
             $output->writeln('No AI skills found.');
+
+            return Command::SUCCESS;
+        }
+
+        if ($formatMd) {
+            $markdown = "## Available AI Skills\n\n| Name | Version | Description |\n|------|---------|-------------|\n";
+
+            foreach ($skills as $skill) {
+                $markdown .= \sprintf(
+                    "| %s | %s | %s |\n",
+                    $skill['name'],
+                    $skill['version'] ?? '',
+                    $skill['description'],
+                );
+            }
+
+            $output->write((new CliMarkdown())->render($markdown));
 
             return Command::SUCCESS;
         }
