@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [v1.4.0] - 2026-05-04
+
+### Added
+- Filter skills by stable versions when running the command with the `--only-stable` option. Closes [#5](https://github.com/raphaelstolt/list-skills-command/issues/5).
+
 ## [v1.3.1] - 2026-05-04
 
 ### Added
@@ -48,8 +53,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Initial release.
 
-[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/raphaelstolt/list-skills-command/compare/v1.4.0...HEAD
 
+[v1.4.0]: https://github.com/raphaelstolt/list-skills-command/compare/v1.3.1...v1.4.0
 [v1.3.1]: https://github.com/raphaelstolt/list-skills-command/compare/v1.2.1...v1.3.1
 [v1.2.1]: https://github.com/raphaelstolt/list-skills-command/compare/v1.2.0...v1.2.1
 [v1.2.0]: https://github.com/raphaelstolt/list-skills-command/compare/v1.1.0...v1.2.0

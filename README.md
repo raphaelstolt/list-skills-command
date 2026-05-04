@@ -64,6 +64,10 @@ Available AI skills:
 
 Use the `--tag` option to filter the available skills by a specific tag or a comma-separated list of tags.
 
+### Filtering skills by stable version
+
+Use the `--stable-version` option to filter skills having a stable version number i.e. `>=1.0.0`.
+
 ### Switching the output format
 
 Use the `--format-json` option to switch the output format to machine-readable JSON for AI agents or CI environments.

@@ -387,6 +387,7 @@ MARKDOWN
                 'skills_directory' => $skillsDirectory,
                 'filters' => [
                     'tags' => [],
+                    'only_stable' => false,
                 ],
                 'count' => 2,
                 'skills' => [
@@ -455,6 +456,7 @@ MARKDOWN
                 'skills_directory' => $skillsDirectory,
                 'filters' => [
                     'tags' => ['frontend'],
+                    'only_stable' => false,
                 ],
                 'count' => 1,
                 'skills' => [
@@ -503,6 +505,7 @@ MARKDOWN
                 'skills_directory' => $skillsDirectory,
                 'filters' => [
                     'tags' => ['javascript'],
+                    'only_stable' => false,
                 ],
                 'count' => 0,
                 'skills' => [],
@@ -546,6 +549,7 @@ MARKDOWN
                 'skills_directory' => $skillsDirectory,
                 'filters' => [
                     'tags' => [],
+                    'only_stable' => false,
                 ],
                 'count' => 1,
                 'skills' => [
@@ -886,5 +890,201 @@ MARKDOWN
             ->execute()
             ->assertOutputContains('No AI skills found.')
             ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function filtersSkillsByOnlyStableOption(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/stable-skill.md',
+            <<<'MARKDOWN'
+---
+name: Stable skill
+description: A stable skill.
+version: 1.0.0
+---
+MARKDOWN
+        );
+
+        \file_put_contents(
+            $skillsDirectory . '/newer-stable-skill.md',
+            <<<'MARKDOWN'
+---
+name: Newer stable skill
+description: A newer stable skill.
+version: 2.3.1
+---
+MARKDOWN
+        );
+
+        \file_put_contents(
+            $skillsDirectory . '/pre-stable-skill.md',
+            <<<'MARKDOWN'
+---
+name: Pre-stable skill
+description: A pre-stable skill.
+version: 0.9.9
+---
+MARKDOWN
+        );
+
+        \file_put_contents(
+            $skillsDirectory . '/unversioned-skill.md',
+            <<<'MARKDOWN'
+---
+name: Unversioned skill
+description: A skill without a version.
+---
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--only-stable')
+            ->assertOutputContains('Available AI skills:')
+            ->assertOutputContains('- stable-skill')
+            ->assertOutputContains('- newer-stable-skill')
+            ->assertOutputNotContains('- pre-stable-skill')
+            ->assertOutputNotContains('- unversioned-skill')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function filtersDirectorySkillsByOnlyStableOption(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \mkdir($skillsDirectory . '/stable-directory-skill');
+        \file_put_contents(
+            $skillsDirectory . '/stable-directory-skill/SKILL.md',
+            <<<'MARKDOWN'
+---
+name: stable-directory-skill
+description: A stable directory skill.
+version: 1.5.0
+---
+
+Use this skill when working with stable directory skills.
+MARKDOWN
+        );
+
+        \mkdir($skillsDirectory . '/pre-stable-directory-skill');
+        \file_put_contents(
+            $skillsDirectory . '/pre-stable-directory-skill/SKILL.md',
+            <<<'MARKDOWN'
+---
+name: pre-stable-directory-skill
+description: A pre-stable directory skill.
+version: 0.1.0
+---
+
+Use this skill when working with pre-stable directory skills.
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--only-stable')
+            ->assertOutputContains('Available AI skills:')
+            ->assertOutputContains('- stable-directory-skill')
+            ->assertOutputNotContains('- pre-stable-directory-skill')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function returnsSuccessfullyWhenNoSkillsMatchOnlyStableOption(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/pre-stable-skill.md',
+            <<<'MARKDOWN'
+---
+name: Pre-stable skill
+description: A pre-stable skill.
+version: 0.5.0
+---
+MARKDOWN
+        );
+
+        TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--only-stable')
+            ->assertOutputContains('No AI skills found.')
+            ->assertOutputNotContains('- pre-stable-skill')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    #[RunInSeparateProcess]
+    public function listsOnlyStableSkillsAsJsonWhenFormatJsonAndOnlyStableOptionsAreUsed(): void
+    {
+        $this->setUpTemporaryDirectory();
+
+        $skillsDirectory = $this->temporaryDirectory . '/skills';
+        \mkdir($skillsDirectory);
+
+        \file_put_contents(
+            $skillsDirectory . '/stable-skill.md',
+            <<<'MARKDOWN'
+---
+name: Stable skill
+description: A stable skill.
+version: 1.0.0
+tags: php
+---
+MARKDOWN
+        );
+
+        \file_put_contents(
+            $skillsDirectory . '/pre-stable-skill.md',
+            <<<'MARKDOWN'
+---
+name: Pre-stable skill
+description: A pre-stable skill.
+version: 0.9.0
+tags: php
+---
+MARKDOWN
+        );
+
+        $result = TestCommand::for(new ListSkillsCommand($skillsDirectory))
+            ->execute('--format-json --only-stable');
+
+        self::assertSame(
+            [
+                'skills_directory' => $skillsDirectory,
+                'filters' => [
+                    'tags' => [],
+                    'only_stable' => true,
+                ],
+                'count' => 1,
+                'skills' => [
+                    [
+                        'slug' => 'stable-skill',
+                        'name' => 'Stable skill',
+                        'description' => 'A stable skill.',
+                        'version' => '1.0.0',
+                        'tags' => ['php'],
+                        'type' => 'file',
+                        'path' => $skillsDirectory . '/stable-skill.md',
+                    ],
+                ],
+            ],
+            \json_decode($result->output(), true)
+        );
+
+        $result->assertSuccessful();
     }
 }

@@ -45,6 +45,12 @@ final class ListSkillsCommand extends Command
             InputOption::VALUE_NONE,
             'Render skills in a Markdown table'
         );
+        $this->addOption(
+            'only-stable',
+            null,
+            InputOption::VALUE_NONE,
+            'Only list skills with a stable version (>=1.0.0)'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -130,6 +136,16 @@ final class ListSkillsCommand extends Command
             ));
         }
 
+        $onlyStable = $input->getOption('only-stable') === true;
+
+        if ($onlyStable) {
+            $skills = \array_values(\array_filter(
+                $skills,
+                fn (array $skill): bool => $skill['version'] !== null
+                    && \version_compare($skill['version'], '1.0.0', '>=')
+            ));
+        }
+
         \usort(
             $skills,
             fn (array $a, array $b) => \strnatcasecmp($a['slug'], $b['slug'])
@@ -140,6 +156,7 @@ final class ListSkillsCommand extends Command
                 'skills_directory' => $this->skillsDirectory,
                 'filters' => [
                     'tags' => $tags,
+                    'only_stable' => $onlyStable,
                 ],
                 'count' => \count($skills),
                 'skills' => \array_map(
