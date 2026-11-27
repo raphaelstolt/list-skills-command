@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Changed
+- Allow installation of `ergebnis/agent-detector:^3.0`, and use `EnvironmentDetector` when it is available.
+
 ## [v1.4.0] - 2026-05-04
 
 ### Added

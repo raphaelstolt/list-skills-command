@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Stolt\Console\Commands;
 
 use Ergebnis\AgentDetector\Detector;
+use Ergebnis\AgentDetector\EnvironmentDetector;
 use PhpPkg\CliMarkdown\CliMarkdown;
 use Stolt\Ai\Skill\Validator;
 use Symfony\Component\Console\Command\Command;
@@ -58,7 +59,7 @@ final class ListSkillsCommand extends Command
         $formatMd = $input->getOption('format-md') === true;
         $formatJson = $formatMd === false
             && ($input->getOption('format-json') === true
-                || (new Detector())->isAgentPresent($this->environmentVariables()));
+                || $this->isAgentPresent());
 
         if (\is_dir($this->skillsDirectory) === false) {
             if ($formatJson) {
@@ -316,6 +317,15 @@ final class ListSkillsCommand extends Command
             ),
             fn (string $tag): bool => $tag !== ''
         ));
+    }
+
+    private function isAgentPresent(): bool
+    {
+        if (\class_exists(EnvironmentDetector::class)) {
+            return (new EnvironmentDetector())->isAgentPresent();
+        }
+
+        return (new Detector())->isAgentPresent($this->environmentVariables());
     }
 
     /**
